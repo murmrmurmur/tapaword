@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapaword</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F2F0EC; --bg2: #E8E5DF; --bg3: #DEDAD3;
+  --card: #FFFFFF;
+  --ink: #0D0D0D; --ink2: #3D3D3A; --ink3: #9A958E;
+  --acc: #D97706; --acc-soft: #F59E0B; --acc-bg: #FEF3C7; --acc-text: #92400E;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.06);
+  --green-bg: #ECFDF5; --green-text: #065F46; --green-border: #A7F3D0;
+  --red-bg: #FFF7ED; --red-text: #9A3412; --red-border: #FED7AA;
+}
+body {
+  font-family: 'Space Grotesk', 'Noto Sans KR', sans-serif;
+  background: #E0DDD7; min-height: 100vh;
+  display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px;
+}
+.app {
+  width: 100%; max-width: 390px; background: var(--bg); border-radius: 24px;
+  overflow: hidden; border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1); min-height: 680px;
+  display: flex; flex-direction: column;
+}
+
+/* LOGIN SCREEN */
+.login-screen {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 32px; padding: 48px 32px;
+}
+.login-logo { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.login-appname { font-size: 32px; font-weight: 700; color: var(--ink); letter-spacing: -1px; }
+.login-appname span { color: var(--acc); }
+.login-tagline { font-size: 13px; color: var(--ink3); text-align: center; line-height: 1.5; }
+.login-divider { width: 100%; height: 1px; background: var(--border); }
+.google-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 13px 20px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 500;
+  color: var(--ink); cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.google-btn:hover { background: var(--bg2); }
+.login-note { font-size: 11px; color: var(--ink3); text-align: center; line-height: 1.6; }
+
+/* TOPBAR */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px; background: var(--bg2);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.appname { font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+.appname span { color: var(--acc); }
+.topbar-right { font-size: 12px; color: var(--ink3); }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%; overflow: hidden;
+  border: 1px solid var(--border); flex-shrink: 0; cursor: pointer;
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--ink2);
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.topbar-meta { display: flex; align-items: center; gap: 8px; }
+
+/* TABS */
+.tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab {
+  flex: 1; text-align: center; padding: 10px 4px; font-size: 12px;
+  color: var(--ink3); cursor: pointer; font-weight: 400;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s;
+}
+.tab.active { color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
+.screen { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+.screen.active { display: flex; }
+
+/* LIST */
+.search-wrap { padding: 12px 16px 6px; }
+.search-box {
+  display: flex; align-items: center; gap: 8px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px;
+}
+.search-box input {
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 13px; color: var(--ink); width: 100%;
+}
+.search-box input::placeholder { color: var(--ink3); }
+.filter-row { display: flex; gap: 6px; padding: 6px 16px 10px; overflow-x: auto; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-tag {
+  padding: 4px 12px; border-radius: 99px; font-size: 11px;
+  border: 1px solid var(--border); color: var(--ink3); background: var(--card);
+  cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
+}
+.filter-tag.sel { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 500; }
+.word-list { padding: 0 16px; flex: 1; }
+.word-item {
+  padding: 12px 0; border-bottom: 1px solid var(--border2);
+  cursor: pointer; transition: opacity 0.15s;
+}
+.word-item:last-child { border-bottom: none; }
+.word-item:hover { opacity: 0.7; }
+.word-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.word-en { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; }
+.due-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; }
+.due-today { background: var(--ink); color: #fff; }
+.due-soon { background: var(--acc-bg); color: var(--acc-text); }
+.due-later { background: var(--bg3); color: var(--ink3); }
+.word-ko { font-size: 12px; color: var(--ink2); margin-bottom: 3px; }
+.word-meta { font-size: 11px; color: var(--ink3); }
+.empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px; padding: 40px;
+}
+.empty-text { font-size: 13px; color: var(--ink3); }
+.empty-sub { font-size: 11px; color: var(--ink3); opacity: 0.7; text-align: center; line-height: 1.5; }
+
+/* LOADING */
+.loading {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.loading-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--acc);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+.loading-text { font-size: 12px; color: var(--ink3); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 99px;
+  font-size: 12px; font-weight: 500; opacity: 0; transition: all 0.25s;
+  pointer-events: none; white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* REVIEW */
+.review-wrap { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.progress-bar { display: flex; gap: 4px; }
+.prog-seg { flex: 1; height: 3px; border-radius: 99px; background: var(--bg3); transition: background 0.3s; }
+.prog-seg.done { background: var(--ink); }
+.prog-seg.cur { background: var(--acc); }
+.card-base {
+  background: var(--card); border-radius: 14px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); width: 100%;
+}
+.flashcard {
+  padding: 28px 20px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.fc-word { font-size: 30px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+.fc-pron { font-size: 12px; color: var(--ink3); }
+.fc-sentence { font-size: 12px; color: var(--ink2); font-style: italic; line-height: 1.6; margin-top: 8px; padding: 0 8px; }
+.answer-card {
+  padding: 28px 20px; display: none; flex-direction: column;
+  align-items: center; gap: 14px; text-align: center;
+}
+.answer-card.visible { display: flex; }
+.answer-ko { font-size: 26px; font-weight: 700; color: var(--ink); letter-spacing: -0.4px; }
+.answer-en-def { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+.answer-divider { height: 1px; background: var(--border2); width: 100%; }
+.answer-sentence-wrap { display: flex; flex-direction: column; gap: 5px; padding: 0 4px; }
+.answer-sentence-en { font-size: 12px; color: var(--ink2); font-style: italic; line-height: 1.6; }
+.answer-sentence-ko { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+.input-section { display: flex; flex-direction: column; gap: 10px; }
+.input-section.hidden { display: none; }
+.input-label { font-size: 11px; color: var(--ink3); font-weight: 500; }
+.input-field {
+  width: 100%; padding: 10px 12px; background: var(--card);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: inherit; font-size: 13px; color: var(--ink); outline: none;
+  transition: border-color 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.input-field:focus { border-color: rgba(0,0,0,0.3); }
+.btn-row { display: flex; gap: 8px; }
+.check-btn {
+  flex: 1; padding: 11px; background: var(--ink); color: #fff;
+  border: none; border-radius: 10px; font-family: inherit;
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+}
+.check-btn:hover { opacity: 0.82; }
+.check-btn:disabled { opacity: 0.35; cursor: default; }
+.skip-btn {
+  padding: 11px 16px; background: var(--bg2); color: var(--ink3);
+  border: 1px solid var(--border); border-radius: 10px; font-family: inherit;
+  font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.skip-btn:hover { color: var(--ink); }
+.self-row { display: none; gap: 8px; }
+.self-row.visible { display: flex; }
+.self-btn {
+  flex: 1; padding: 10px; border-radius: 10px; font-family: inherit;
+  font-size: 12px; font-weight: 700; border: 1px solid var(--border);
+  background: var(--card); color: var(--ink2); cursor: pointer; transition: opacity 0.15s;
+}
+.self-btn.ok { background: var(--green-bg); color: var(--green-text); border-color: var(--green-border); }
+.self-btn.no { background: var(--red-bg); color: var(--red-text); border-color: var(--red-border); }
+.self-btn:hover { opacity: 0.78; }
+.srs-hint { font-size: 10px; color: var(--ink3); text-align: center; min-height: 16px; }
+.review-done {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; gap: 14px; padding: 40px 24px; flex: 1;
+}
+.review-done.visible { display: flex; }
+.done-mark { font-size: 36px; }
+.done-title { font-size: 22px; font-weight: 700; color: var(--ink); }
+.done-sub { font-size: 13px; color: var(--ink3); text-align: center; line-height: 1.6; white-space: pre-line; }
+.done-stats {
+  display: flex; gap: 20px; background: var(--card); border-radius: 14px;
+  padding: 16px 24px; border: 1px solid var(--border); margin-top: 4px;
+}
+.stat { text-align: center; }
+.stat-num { font-size: 24px; font-weight: 700; color: var(--ink); }
+.stat-num.g { color: var(--green-text); }
+.stat-num.r { color: var(--red-text); }
+.stat-label { font-size: 10px; color: var(--ink3); margin-top: 2px; }
+.restart-btn {
+  padding: 11px 32px; background: var(--ink); color: #fff; border: none;
+  border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.restart-btn:hover { opacity: 0.82; }
+
+/* DETAIL */
+.detail-wrap { padding: 16px; flex: 1; }
+.detail-back {
+  display: flex; align-items: center; gap: 6px; font-size: 12px;
+  color: var(--ink3); cursor: pointer; margin-bottom: 16px; transition: color 0.15s;
+}
+.detail-back:hover { color: var(--ink); }
+.detail-head { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border2); }
+.detail-word { font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+.detail-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.detail-pos { font-size: 11px; color: var(--ink3); }
+.detail-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--ink3); opacity: 0.4; }
+.detail-date { font-size: 11px; color: var(--ink3); }
+.sec { margin-bottom: 14px; }
+.sec-label { font-size: 10px; font-weight: 700; color: var(--acc-text); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.sec-val { font-size: 15px; color: var(--ink); font-weight: 500; }
+.sec-sub { font-size: 12px; color: var(--ink2); margin-top: 2px; line-height: 1.4; }
+.excerpt-wrap {
+  background: var(--card); border-left: 3px solid var(--acc);
+  padding: 10px 12px; border-radius: 0 8px 8px 0; display: flex; flex-direction: column; gap: 5px;
+}
+.excerpt-en { font-size: 12px; color: var(--ink2); font-style: italic; line-height: 1.6; }
+.excerpt-ko { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+.hl { background: var(--acc-bg); color: var(--acc-text); border-radius: 3px; padding: 0 3px; font-style: normal; font-weight: 700; }
+.url-chip {
+  display: flex; align-items: center; gap: 6px; padding: 7px 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-top: 5px;
+}
+.url-text { font-size: 11px; color: var(--ink3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srs-bar {
+  background: var(--card); border-radius: 10px; padding: 10px 14px;
+  display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
+}
+.srs-item { font-size: 11px; color: var(--ink2); }
+.srs-item b { color: var(--ink); font-weight: 700; }
+.delete-btn {
+  width: 100%; margin-top: 12px; padding: 10px; background: transparent;
+  border: 1px solid var(--red-border); border-radius: 10px; font-family: inherit;
+  font-size: 12px; color: var(--red-text); cursor: pointer; transition: all 0.15s;
+}
+.delete-btn:hover { background: var(--red-bg); }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<div class="app" id="app">
+
+  <!-- LOGIN SCREEN -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-logo">
+      <div class="login-appname">tapa<span>word</span></div>
+      <div class="login-tagline">읽다가 만난 단어,<br>탭 한 번으로 내 단어장에</div>
+    </div>
+    <div class="login-divider"></div>
+    <button class="google-btn" onclick="loginWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
+        <path fill="#FBBC05" d="M4.5 10.48A4.8 4.8 0 0 1 4.5 7.5V5.43H1.83a8 8 0 0 0 0 7.14z"/>
+        <path fill="#EA4335" d="M8.98 3.58c1.32 0 2.5.45 3.44 1.35l2.54-2.54A8 8 0 0 0 1.83 5.43L4.5 7.5c.68-2.01 2.56-3.92 4.48-3.92z"/>
+      </svg>
+      Google로 계속하기
+    </button>
+    <div class="login-note">로그인하면 모든 기기에서<br>단어장이 동기화돼요</div>
+  </div>
+
+  <!-- MAIN APP (로그인 후) -->
+  <div id="main-app" style="display:none; flex-direction:column; flex:1;">
+    <div class="topbar">
+      <span class="appname">tapa<span>word</span></span>
+      <div class="topbar-meta">
+        <span class="topbar-right" id="topbar-right"></span>
+        <div class="user-avatar" id="user-avatar" onclick="handleSignOut()" title="로그아웃"></div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('list')">list</div>
+      <div class="tab" onclick="switchTab('review')">review</div>
+    </div>
+
+    <!-- LIST -->
+    <div class="screen active" id="screen-list">
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="6.5" cy="6.5" r="5" stroke="#9A958E" stroke-width="1.5"/>
+            <path d="M10.5 10.5L14 14" stroke="#9A958E" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input type="text" placeholder="search words..." id="search-input" oninput="renderList()">
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-tag sel" onclick="setFilter('all',this)">전체</div>
+        <div class="filter-tag" onclick="setFilter('today',this)">오늘</div>
+        <div class="filter-tag" onclick="setFilter('week',this)">이번 주</div>
+        <div class="filter-tag" onclick="setFilter('month',this)">한 달</div>
+      </div>
+      <div class="word-list" id="word-list">
+        <div class="loading"><div class="loading-dot"></div><div class="loading-text">불러오는 중...</div></div>
+      </div>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="screen" id="screen-review">
+      <div class="review-wrap" id="review-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="card-base flashcard" id="flashcard">
+          <div class="fc-word" id="fc-word"></div>
+          <div class="fc-pron" id="fc-pron"></div>
+          <div class="fc-sentence" id="fc-sentence"></div>
+        </div>
+        <div class="card-base answer-card" id="answer-card">
+          <div class="answer-ko" id="ans-ko"></div>
+          <div class="answer-en-def" id="ans-en-def"></div>
+          <div class="answer-divider"></div>
+          <div class="answer-sentence-wrap">
+            <div class="answer-sentence-en" id="ans-sentence-en"></div>
+            <div class="answer-sentence-ko" id="ans-sentence-ko"></div>
+          </div>
+        </div>
+        <div class="input-section" id="input-section">
+          <div class="input-label">뜻을 입력하세요</div>
+          <input class="input-field" type="text" id="answer-input"
+            placeholder="한국어로 입력..." onkeydown="if(event.key==='Enter')checkAnswer()">
+          <div class="btn-row">
+            <button class="check-btn" id="check-btn" onclick="checkAnswer()">확인하기</button>
+            <button class="skip-btn" onclick="skipCard()">모르겠어요</button>
+          </div>
+        </div>
+        <div class="self-row" id="self-row">
+          <button class="self-btn ok" onclick="rateCard(true)">✓ 맞았어요</button>
+          <button class="self-btn no" onclick="rateCard(false)">✗ 틀렸어요</button>
+        </div>
+        <div class="srs-hint" id="srs-hint"></div>
+      </div>
+      <div class="review-done" id="review-done">
+        <div class="done-mark">✦</div>
+        <div class="done-title">복습 완료!</div>
+        <div class="done-sub" id="done-sub"></div>
+        <div class="done-stats">
+          <div class="stat"><div class="stat-num g" id="s-correct">0</div><div class="stat-label">맞았어요</div></div>
+          <div class="stat"><div class="stat-num r" id="s-wrong">0</div><div class="stat-label">틀렸어요</div></div>
+          <div class="stat"><div class="stat-num" id="s-total">0</div><div class="stat-label">전체</div></div>
+        </div>
+        <button class="restart-btn" onclick="startReview()">다시 복습하기</button>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen" id="screen-detail">
+      <div class="detail-wrap">
+        <div class="detail-back" onclick="goBack()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          목록으로
+        </div>
+        <div class="detail-head">
+          <div class="detail-word" id="d-word"></div>
+          <div class="detail-meta">
+            <span class="detail-pos" id="d-pos"></span>
+            <span class="detail-sep"></span>
+            <span class="detail-date" id="d-date"></span>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-label">뜻</div>
+          <div class="sec-val" id="d-ko"></div>
+          <div class="sec-sub" id="d-en"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-label">예문</div>
+          <div class="excerpt-wrap">
+            <div class="excerpt-en" id="d-excerpt-en"></div>
+            <div class="excerpt-ko" id="d-excerpt-ko"></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-label">출처</div>
+          <div class="url-chip">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="#9A958E" stroke-width="1"/>
+              <path d="M6 3v3l2 1" stroke="#9A958E" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+            <span class="url-text" id="d-url"></span>
+          </div>
+        </div>
+        <div class="srs-bar">
+          <span class="srs-item">다음 복습 <b id="d-next"></b></span>
+          <span class="srs-item">정답률 <b id="d-rate"></b> · 간격 <b id="d-interval"></b></span>
+        </div>
+        <button class="delete-btn" id="delete-btn" onclick="deleteWord()">이 단어 삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDLf4XG9JHa17h5sWlBK1JB0skD_SlG_Uo",
+  authDomain: "tapaword.firebaseapp.com",
+  projectId: "tapaword",
+  storageBucket: "tapaword.firebasestorage.app",
+  messagingSenderId: "770526535813",
+  appId: "1:770526535813:web:30b73aa634e903d654c9ec"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const SRS = [1,3,7,14,21,30];
+const PRON = {scrutinize:'ˈskruːtɪnaɪz',resilient:'rɪˈzɪliənt',unprecedented:'ʌnˈpresɪdentɪd',yield:'jiːld',rhetoric:'ˈretərɪk',nuance:'ˈnjuːɑːns'};
+
+let currentUser = null;
+let words = [];
+let filter = 'all';
+let prevScreen = 'list';
+let queue = [], qIdx = 0, cCount = 0, wCount = 0;
+let currentDetailId = null;
+
+// ── AUTH ──────────────────────────────────────────
+window.loginWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    showToast('로그인 실패: ' + e.message);
+  }
+};
+
+window.handleSignOut = async () => {
+  if (!confirm('로그아웃 할까요?')) return;
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    const main = document.getElementById('main-app');
+    main.style.display = 'flex';
+    // 아바타
+    const avatar = document.getElementById('user-avatar');
+    if (user.photoURL) {
+      avatar.innerHTML = `<img src="${user.photoURL}" alt="">`;
+    } else {
+      avatar.textContent = user.displayName?.[0] || '?';
+    }
+    loadWords();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    words = [];
+  }
+});
+
+// ── FIRESTORE ──────────────────────────────────────
+async function loadWords() {
+  if (!currentUser) return;
+  try {
+    const q = query(
+      collection(db, 'words'),
+      where('uid', '==', currentUser.uid),
+      orderBy('createdAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    words = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderList();
+    updateTopbar();
+  } catch (e) {
+    // 인덱스 없을 때 fallback
+    const snap = await getDocs(collection(db, 'words'));
+    words = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(w => w.uid === currentUser.uid);
+    renderList();
+    updateTopbar();
+  }
+}
+
+async function saveWordToDB(wordData) {
+  if (!currentUser) return null;
+  const ref = await addDoc(collection(db, 'words'), {
+    ...wordData,
+    uid: currentUser.uid,
+    createdAt: serverTimestamp(),
+    iIdx: 0,
+    correct: 0,
+    total: 0,
+  });
+  return ref.id;
+}
+
+async function updateWordInDB(id, data) {
+  await updateDoc(doc(db, 'words', id), data);
+}
+
+window.deleteWord = async () => {
+  if (!currentDetailId) return;
+  if (!confirm('이 단어를 삭제할까요?')) return;
+  await deleteDoc(doc(db, 'words', currentDetailId));
+  words = words.filter(w => w.id !== currentDetailId);
+  showToast('삭제했어요');
+  goBack();
+  updateTopbar();
+};
+
+// ── SRS HELPERS ────────────────────────────────────
+function getDaysAgo(createdAt) {
+  if (!createdAt) return 0;
+  const ms = createdAt.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime();
+  return Math.floor((Date.now() - ms) / 86400000);
+}
+
+function dueLabel(w) {
+  const daysAgo = getDaysAgo(w.createdAt);
+  const lastReviewed = w.lastReviewed
+    ? Math.floor((Date.now() - (w.lastReviewed.toMillis?.() || new Date(w.lastReviewed).getTime())) / 86400000)
+    : daysAgo;
+  const interval = SRS[w.iIdx || 0] || 1;
+  const due = lastReviewed >= interval;
+  if (due) return { label: '오늘 복습', cls: 'due-today' };
+  const diff = interval - lastReviewed;
+  return diff <= 3
+    ? { label: diff + '일 후', cls: 'due-soon' }
+    : { label: diff + '일 후', cls: 'due-later' };
+}
+
+function matchFilter(w) {
+  const days = getDaysAgo(w.createdAt);
+  if (filter === 'all') return true;
+  if (filter === 'today') return days <= 1;
+  if (filter === 'week') return days <= 7;
+  return days <= 30;
+}
+
+// ── UI ─────────────────────────────────────────────
+function updateTopbar() {
+  document.getElementById('topbar-right').textContent = words.length + ' words';
+}
+
+window.renderList = () => {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  const list = words.filter(w => matchFilter(w) && (
+    (w.en || '').toLowerCase().includes(q) || (w.ko || '').includes(q)
+  ));
+  const el = document.getElementById('word-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">
+      <div class="empty-text">단어가 없어요</div>
+      <div class="empty-sub">외부 페이지에서 단어를 선택하고<br>공유하기로 저장해보세요</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = list.map(w => {
+    const d = dueLabel(w);
+    const days = getDaysAgo(w.createdAt);
+    return `<div class="word-item" onclick="openDetail('${w.id}')">
+      <div class="word-top"><span class="word-en">${w.en}</span><span class="due-badge ${d.cls}">${d.label}</span></div>
+      <div class="word-ko">${w.ko || '—'}</div>
+      <div class="word-meta">간격 ${SRS[w.iIdx||0]}일 · ${days}일 전 저장</div>
+    </div>`;
+  }).join('');
+};
+
+window.setFilter = (f, el) => {
+  filter = f;
+  document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  renderList();
+};
+
+window.switchTab = tab => {
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', (i === 0 && tab === 'list') || (i === 1 && tab === 'review')));
+  showScreen(tab === 'list' ? 'list' : 'review');
+  if (tab === 'review') startReview();
+  else updateTopbar();
+};
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+window.openDetail = id => {
+  prevScreen = 'list';
+  const w = words.find(x => x.id === id);
+  if (!w) return;
+  currentDetailId = id;
+  const days = getDaysAgo(w.createdAt);
+  const interval = SRS[w.iIdx || 0];
+  document.getElementById('d-word').textContent = w.en;
+  document.getElementById('d-pos').textContent = w.pos || '';
+  document.getElementById('d-date').textContent = days + '일 전 저장';
+  document.getElementById('d-ko').textContent = w.ko || '—';
+  document.getElementById('d-en').textContent = w.def || '';
+  document.getElementById('d-url').textContent = w.url || '—';
+  document.getElementById('d-next').textContent = '—';
+  document.getElementById('d-rate').textContent = w.total > 0 ? Math.round(w.correct / w.total * 100) + '%' : '0%';
+  document.getElementById('d-interval').textContent = interval + '일';
+  document.getElementById('d-excerpt-en').innerHTML = (w.sentence || '').replace(
+    new RegExp(w.en, 'gi'), m => `<span class="hl">${m}</span>`);
+  document.getElementById('d-excerpt-ko').textContent = w.sentenceKo || '';
+  document.getElementById('topbar-right').textContent = 'word detail';
+  showScreen('detail');
+};
+
+window.goBack = () => {
+  updateTopbar();
+  showScreen(prevScreen);
+  if (prevScreen === 'review') startReview();
+  else renderList();
+};
+
+// ── REVIEW ─────────────────────────────────────────
+window.startReview = () => {
+  queue = words.filter(w => {
+    const days = getDaysAgo(w.createdAt);
+    return days >= SRS[w.iIdx || 0];
+  });
+  if (!queue.length) queue = [...words];
+  if (!queue.length) {
+    document.getElementById('review-wrap').style.display = 'none';
+    document.getElementById('review-done').classList.add('visible');
+    document.getElementById('done-sub').textContent = '저장된 단어가 없어요.\n먼저 단어를 추가해보세요!';
+    return;
+  }
+  queue.sort(() => Math.random() - 0.5);
+  qIdx = 0; cCount = 0; wCount = 0;
+  document.getElementById('review-wrap').style.display = 'flex';
+  document.getElementById('review-done').classList.remove('visible');
+  showCard();
+};
+
+function showCard() {
+  if (qIdx >= queue.length) { showDone(); return; }
+  const w = queue[qIdx];
+  document.getElementById('fc-word').textContent = w.en;
+  document.getElementById('fc-pron').textContent = '/ ' + (PRON[w.en] || w.en) + ' / · ' + (w.pos || '').split(' ')[0];
+  document.getElementById('fc-sentence').textContent = w.sentence || '';
+  document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('answer-card').classList.remove('visible');
+  const inp = document.getElementById('answer-input');
+  inp.value = ''; inp.className = 'input-field'; inp.disabled = false;
+  document.getElementById('input-section').classList.remove('hidden');
+  document.getElementById('check-btn').disabled = false;
+  document.getElementById('self-row').classList.remove('visible');
+  document.getElementById('srs-hint').textContent = '';
+  document.getElementById('topbar-right').textContent = (qIdx + 1) + ' / ' + queue.length;
+  updateProgress();
+  setTimeout(() => inp.focus(), 50);
+}
+
+function updateProgress() {
+  document.getElementById('progress-bar').innerHTML =
+    queue.map((_, i) => `<div class="prog-seg ${i < qIdx ? 'done' : i === qIdx ? 'cur' : ''}"></div>`).join('');
+}
+
+function revealAnswer() {
+  const w = queue[qIdx];
+  document.getElementById('input-section').classList.add('hidden');
+  document.getElementById('ans-ko').textContent = w.ko || '—';
+  document.getElementById('ans-en-def').textContent = w.def || '';
+  document.getElementById('ans-sentence-en').textContent = w.sentence || '';
+  document.getElementById('ans-sentence-ko').textContent = w.sentenceKo || '';
+  document.getElementById('answer-card').classList.add('visible');
+  document.getElementById('self-row').classList.add('visible');
+  const next = SRS[Math.min((w.iIdx || 0) + 1, SRS.length - 1)];
+  document.getElementById('srs-hint').textContent = '맞으면 다음 복습 +' + next + '일 · 틀리면 간격 리셋';
+}
+
+window.checkAnswer = () => {
+  const inp = document.getElementById('answer-input');
+  if (!inp.value.trim()) return;
+  inp.disabled = true;
+  document.getElementById('check-btn').disabled = true;
+  revealAnswer();
+};
+
+window.skipCard = () => {
+  document.getElementById('answer-input').disabled = true;
+  document.getElementById('check-btn').disabled = true;
+  revealAnswer();
+  document.querySelector('.self-btn.ok').style.opacity = '0.35';
+  document.querySelector('.self-btn.ok').style.pointerEvents = 'none';
+};
+
+window.rateCard = async correct => {
+  document.querySelector('.self-btn.ok').style.opacity = '';
+  document.querySelector('.self-btn.ok').style.pointerEvents = '';
+  const w = queue[qIdx];
+  w.total = (w.total || 0) + 1;
+  if (correct) {
+    w.correct = (w.correct || 0) + 1;
+    w.iIdx = Math.min((w.iIdx || 0) + 1, SRS.length - 1);
+    cCount++;
+  } else {
+    w.iIdx = 0;
+    wCount++;
+  }
+  // Firestore 업데이트
+  try {
+    await updateWordInDB(w.id, {
+      iIdx: w.iIdx, correct: w.correct, total: w.total,
+      lastReviewed: serverTimestamp()
+    });
+  } catch (e) { console.warn('update failed', e); }
+  qIdx++;
+  setTimeout(showCard, 150);
+};
+
+function showDone() {
+  document.getElementById('review-wrap').style.display = 'none';
+  document.getElementById('review-done').classList.add('visible');
+  document.getElementById('s-correct').textContent = cCount;
+  document.getElementById('s-wrong').textContent = wCount;
+  document.getElementById('s-total').textContent = queue.length;
+  const pct = queue.length ? Math.round(cCount / queue.length * 100) : 0;
+  document.getElementById('done-sub').textContent = '정답률 ' + pct + '%\n다음 복습은 SRS 간격에 따라 자동 조정돼요.';
+  document.getElementById('topbar-right').textContent = '완료!';
+}
+
+// ── TOAST ──────────────────────────────────────────
+window.showToast = msg => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+};
+
+// ── SHARE TARGET 수신 (PWA용) ──────────────────────
+const params = new URLSearchParams(window.location.search);
+const sharedText = params.get('text');
+const sharedUrl = params.get('url');
+if (sharedText) {
+  // 로그인 후 자동으로 단어 저장 처리
+  onAuthStateChanged(auth, async user => {
+    if (user && sharedText) {
+      showToast(`"${sharedText}" 저장 준비 중...`);
+      // 실제 구현 시 여기서 Dictionary API 호출 + 저장
+    }
+  });
+}
+</script>
+</body>
+</html>
