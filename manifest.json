@@ -1,0 +1,31 @@
+{
+  "name": "Tapaword",
+  "short_name": "Tapaword",
+  "description": "읽다가 만난 단어, 탭 한 번으로 내 단어장에",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2F0EC",
+  "theme_color": "#0D0D0D",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
